@@ -20,18 +20,33 @@ class TestObject {
 public:
     TestObject() =default;
     template<typename CurrentFunction, typename... RestFuctions>
+    void visible_test();
+    template<typename CurrentFunction, typename... RestFuctions>
     bool correctness_test();
     template<typename CurrentFunction, typename... RestFuctions>
     void suitable_category_test();
     template<typename CurrentFunction, typename... RestFuctions>
     void performance_test();
-    template<typename CurrentFunction, typename... RestFuctions>
-    void easy_test();
     void write_to_file();
 private:
     template<typename CurrentFunction> void _prepare();
     static std::map<std::string, InfoPointer> info_map;
 };
+
+template<typename CurrentFunction, typename... RestFuctions>
+void TestObject::visible_test() {
+    CurrentFunction sort_function;
+    std::vector<int> data(12);
+    std::uniform_int_distribution<int> distributor(-20, 20);
+    std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
+    std::generate(data.begin(), data.end(), [&distributor, &engine](){return distributor(engine);});
+    InfoProcessor::print_data_for_visible_test(sort_function.name, data, true);
+    sort_function(data.begin(), data.end());
+    InfoProcessor::print_data_for_visible_test(sort_function.name, data, false);
+    if constexpr(sizeof...(RestFuctions) > 0) {
+        visible_test<RestFuctions...>();
+    }
+}
 
 template<typename CurrentFunction>
 void TestObject::_prepare() {
@@ -98,6 +113,51 @@ void TestObject::suitable_category_test() {
     }
 }
 
+template<
+    typename CurrentFunction,
+    typename DistributionType,
+    typename... RestDistributionTypes
+> void performance_test_aux(
+    DataGenerator<>& data_generator,
+    long long data_scale,
+    std::vector<PerforamanceInfo>& p_info_container) {
+    using ValueType = typename DistributionType::result_type;
+    {
+        CurrentFunction sort_function;
+        std::vector<ValueType> test_container = data_generator.template get_data<DistributionType>();
+        PerforamanceInfo performance_info(
+            typeid(DistributionType).name(),
+            typeid(ValueType).name(),
+            data_scale
+        );
+        p_info_container.push_back(performance_info);
+        Timer timer(p_info_container.back().runtime);
+        sort_function(test_container.begin(), test_container.end());
+    }
+    if constexpr(sizeof...(RestDistributionTypes) > 0) {
+        performance_test_aux<CurrentFunction, RestDistributionTypes...>(data_generator, data_scale, p_info_container);
+    }
+}
+
+template<typename CurrentFunction>
+void performance_test_reversed_data_aux(
+    DataGenerator<>& data_generator,
+    long long data_scale,
+    std::vector<PerforamanceInfo>& p_info_container) {
+    {
+        CurrentFunction sort_function;
+        std::vector<int> test_container = data_generator.get_reversed_data();
+        PerforamanceInfo performance_info(
+            "reversed_distribution",
+            "int",
+            data_scale
+        );
+        p_info_container.push_back(performance_info);
+        Timer timer(p_info_container.back().runtime);
+        sort_function(test_container.begin(), test_container.end());
+    }
+}
+
 template<typename CurrentFunction, typename... RestFuctions>
 void TestObject::performance_test() {
     bool is_correct = correctness_test<CurrentFunction>();
@@ -108,50 +168,16 @@ void TestObject::performance_test() {
         for (int i = 10; i <= 12; ++i) {
             long long data_scale = static_cast<long long >(pow(2, i));
             data_generator.set_data_scale(data_scale);
-            {
-                std::vector<int> test_container = data_generator.template get_data<int, std::uniform_int_distribution>();
-                PerforamanceInfo performance_info(
-                    "uniform_int_distribution",
-                    "int",
-                    data_scale
-                );
-                p_info_container.push_back(performance_info);
-                Timer timer(p_info_container.back().runtime);
-                sort_function(test_container.begin(), test_container.end());
-            }
-            {
-                std::vector<double> test_container = data_generator.template get_data<double, std::uniform_real_distribution>();
-                PerforamanceInfo performance_info(
-                    "uniform_real_distribution",
-                    "double",
-                    data_scale
-                );
-                p_info_container.push_back(performance_info);
-                Timer timer(p_info_container.back().runtime);
-                sort_function(test_container.begin(), test_container.end());                
-            }
-            {
-                std::vector<double> test_container = data_generator.template get_data<double, std::normal_distribution>();
-                PerforamanceInfo performance_info(
-                    "normal_distribution",
-                    "double",
-                    data_scale
-                );
-                p_info_container.push_back(performance_info);
-                Timer timer(p_info_container.back().runtime);
-                sort_function(test_container.begin(), test_container.end());                   
-            }
-            {
-                std::vector<int> test_container = data_generator.get_reversed_data();
-                PerforamanceInfo performance_info(
-                    "reversed_distribution",
-                    "int",
-                    data_scale
-                );
-                p_info_container.push_back(performance_info);
-                Timer timer(p_info_container.back().runtime);
-                sort_function(test_container.begin(), test_container.end());                   
-            }
+            performance_test_aux<
+                CurrentFunction, 
+                std::uniform_int_distribution<int>,
+                std::uniform_real_distribution<double>,
+                std::normal_distribution<double>,
+                std::normal_distribution<float>
+            > (data_generator, data_scale, p_info_container);
+            performance_test_reversed_data_aux<
+                CurrentFunction
+            >(data_generator, data_scale, p_info_container);
         }
         InfoProcessor::print_performance_info(sort_function.name, p_info_container);
     }

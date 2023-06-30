@@ -1,5 +1,18 @@
 #include "InfoProcessor.h"
 
+void InfoProcessor::print_data_for_visible_test(const std::string& name, const std::vector<int>& data, bool before_sort) {
+    if (before_sort) {
+        std::cout << name << " easy_test:" << std::endl;
+        std::cout << "Before sorting: ";
+    } else {
+        std::cout << "After sorting: ";
+    }
+    for (const auto& i : data) {
+        std::cout << i << "\t";
+    }
+    std::cout << std::endl;
+}
+
 void InfoProcessor::print_correctnees(const std::string& name, bool is_correct) {
     std::cout << "Sort function " << name;
     if(is_correct) {
@@ -64,18 +77,14 @@ void InfoProcessor::write_info_to_file(std::map<std::string, InfoPointer>& info_
         
         if (p_info_container.size() > 0) {
             file_writer << "data scale\t";
-            file_writer << p_info_container[0].distribute_type << "<" << p_info_container[0].value_type << ">(microseconds)\t"
-                              << p_info_container[1].distribute_type << "<" << p_info_container[1].value_type << ">(microseconds)\t"
-                              << p_info_container[2].distribute_type << "<" << p_info_container[2].value_type << ">(microseconds)\t"
-                              << p_info_container[3].distribute_type << "<" << p_info_container[3].value_type << ">(microseconds)\t";
+            for (int i = 0; i < NUMBER_OF_DISTRIBUTION; ++i) {
+                file_writer << p_info_container[i].distribute_type << "<" << p_info_container[0].value_type << ">(microseconds)\t";
+            }
         }
-        for (auto iter = p_info_container.begin(), end = p_info_container.end(); iter != end; iter += 4) {
-            // for (auto iter_2 = iter, end = iter + 4; iter_2 != end; ++iter_2) {
-            //     file_writer << iter->distribute_type << "<" << iter->value_type << ">\t";
-            // }
+        for (auto iter = p_info_container.begin(), end = p_info_container.end(); iter != end; iter += NUMBER_OF_DISTRIBUTION) {
             file_writer << std::endl;
             file_writer << iter->data_scale << "\t";
-            for (auto iter_2 = iter, end = iter + 4; iter_2 != end; ++iter_2) {
+            for (auto iter_2 = iter, end = iter + NUMBER_OF_DISTRIBUTION; iter_2 != end; ++iter_2) {
                 file_writer << iter_2->runtime << "\t";
             }
         }

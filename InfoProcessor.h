@@ -11,10 +11,13 @@ class InfoProcessor {
     using PInfoContainer = typename std::vector<PerforamanceInfo>;
     using InfoPointer = typename std::shared_ptr<SortFunctionInfo>;
 public:
+    static void print_data_for_visible_test(const std::string& name, const std::vector<int>&, bool);
     static void print_correctnees(const std::string&, bool);
     static void print_category(const std::string&, short);
     static void print_performance_info(const std::string&, const PInfoContainer&);
     static void write_info_to_file(std::map<std::string, InfoPointer>&);
+private:
+    static const int NUMBER_OF_DISTRIBUTION = 5;
 };
 
 #endif
