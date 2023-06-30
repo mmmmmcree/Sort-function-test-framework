@@ -10,6 +10,7 @@ struct PerforamanceInfo {
     std::string value_type;
     long long data_scale;
     long long runtime;
+    std::pair<int, int> compare_assign_times;
 };
 
 struct SortFunctionInfo {

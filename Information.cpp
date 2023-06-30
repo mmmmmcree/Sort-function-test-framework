@@ -1,14 +1,5 @@
 #include "Information.h"
 
-PerforamanceInfo::PerforamanceInfo() :
-    distribute_type(),
-    value_type(),
-    data_scale(0),
-    runtime(-1)
-{
-
-}
-
 PerforamanceInfo::PerforamanceInfo( 
     const std::string& distribute_t,
     const std::string& value_t,
@@ -17,7 +8,8 @@ PerforamanceInfo::PerforamanceInfo(
     distribute_type(distribute_t),
     value_type(value_t),
     data_scale(scale),
-    runtime(-1)
+    runtime(-1),
+    compare_assign_times(std::make_pair(-1, -1))
 {
 
 }

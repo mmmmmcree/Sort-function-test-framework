@@ -45,7 +45,9 @@ void InfoProcessor::print_performance_info(const std::string& name, const PInfoC
         std::cout << "\tdata distribution type: " << item.distribute_type << std::endl;
         std::cout << "\tvalue type: " << item.value_type << std::endl;
         std::cout << "\tdata scale: " << item.data_scale << std::endl;
-        std::cout << "\trunning time(microseconds): " << item.runtime << std::endl;
+        std::cout << "\trunning time(microseconds): " << item.runtime 
+                       << "(" << item.compare_assign_times.first << ", "
+                       << item.compare_assign_times.second << ")" << std::endl;
     }
     std::cout << "}" << std::endl;
 }
@@ -85,7 +87,9 @@ void InfoProcessor::write_info_to_file(std::map<std::string, InfoPointer>& info_
             file_writer << std::endl;
             file_writer << iter->data_scale << "\t";
             for (auto iter_2 = iter, end = iter + NUMBER_OF_DISTRIBUTION; iter_2 != end; ++iter_2) {
-                file_writer << iter_2->runtime << "\t";
+                file_writer << iter_2->runtime 
+                                   << "(" << iter_2->compare_assign_times.first << ", "
+                                   << iter_2->compare_assign_times.second << ")" << "\t";
             }
         }
         file_writer << std::endl << std::endl;

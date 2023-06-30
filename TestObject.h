@@ -132,7 +132,7 @@ template<
         );
         p_info_container.push_back(performance_info);
         Timer timer(p_info_container.back().runtime);
-        sort_function(test_container.begin(), test_container.end());
+        p_info_container.back().compare_assign_times = sort_function(test_container.begin(), test_container.end());
     }
     if constexpr(sizeof...(RestDistributionTypes) > 0) {
         performance_test_aux<CurrentFunction, RestDistributionTypes...>(data_generator, data_scale, p_info_container);
@@ -154,7 +154,7 @@ void performance_test_reversed_data_aux(
         );
         p_info_container.push_back(performance_info);
         Timer timer(p_info_container.back().runtime);
-        sort_function(test_container.begin(), test_container.end());
+        p_info_container.back().compare_assign_times = sort_function(test_container.begin(), test_container.end());
     }
 }
 
