@@ -1,18 +1,5 @@
 #include "InfoProcessor.h"
 
-void InfoProcessor::print_data_for_visible_test(const std::string& name, const std::vector<int>& data, bool before_sort) {
-    if (before_sort) {
-        std::cout << name << " easy_test:" << std::endl;
-        std::cout << "Before sorting: ";
-    } else {
-        std::cout << "After sorting: ";
-    }
-    for (const auto& i : data) {
-        std::cout << i << "\t";
-    }
-    std::cout << std::endl;
-}
-
 void InfoProcessor::print_correctnees(const std::string& name, bool is_correct) {
     std::cout << "Sort function " << name;
     if(is_correct) {

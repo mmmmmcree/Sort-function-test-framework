@@ -19,8 +19,8 @@ class TestObject {
     using InfoPointer = typename std::shared_ptr<SortFunctionInfo>;
 public:
     TestObject() =default;
-    template<typename CurrentFunction, typename... RestFuctions>
-    void visible_test();
+    template<typename DataType, typename CompareFunctor, typename CurrentFunction, typename... RestFuctions>
+    void visible_test(DataType);
     template<typename CurrentFunction, typename... RestFuctions>
     bool correctness_test();
     template<typename CurrentFunction, typename... RestFuctions>
@@ -33,18 +33,16 @@ private:
     static std::map<std::string, InfoPointer> info_map;
 };
 
-template<typename CurrentFunction, typename... RestFuctions>
-void TestObject::visible_test() {
+template<typename DataType, typename CompareFunctor, typename CurrentFunction, typename... RestFuctions>
+void TestObject::visible_test(DataType data) {
+    DataType data_copy = data;
     CurrentFunction sort_function;
-    std::vector<int> data(12);
-    std::uniform_int_distribution<int> distributor(-20, 20);
-    std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
-    std::generate(data.begin(), data.end(), [&distributor, &engine](){return distributor(engine);});
-    InfoProcessor::print_data_for_visible_test(sort_function.name, data, true);
-    sort_function(data.begin(), data.end());
-    InfoProcessor::print_data_for_visible_test(sort_function.name, data, false);
+    InfoProcessor info_processor;
+    info_processor.print_data_for_visible_test(sort_function.name, data, true);
+    sort_function(data.begin(), data.end(), CompareFunctor());
+    info_processor.print_data_for_visible_test(sort_function.name, data, false);
     if constexpr(sizeof...(RestFuctions) > 0) {
-        visible_test<RestFuctions...>();
+        visible_test<DataType, CompareFunctor, RestFuctions...>(data_copy);
     }
 }
 
