@@ -39,19 +39,20 @@ void InfoProcessor::print_performance_info(const std::string& name, const PInfoC
     std::cout << "}" << std::endl;
 }
 
-void InfoProcessor::write_info_to_file(std::map<std::string, InfoPointer>& info_map) {
-    std::ofstream file_writer("./Release/test.txt", std::iostream::out);
-    
+std::string current_time_string() {
     auto now = std::chrono::system_clock::now();
-    auto now_time_t = std::chrono::system_clock::to_time_t(now);
-    std::tm* local_time = std::localtime(&now_time_t);
-    file_writer << "The time when the data was written\n"
-                      << local_time->tm_year + 1900 << "-"
-                      << local_time->tm_mon + 1 << "-"
-                      << local_time->tm_mday << " "
-                      << local_time->tm_hour << ":"
-                      << local_time->tm_min << ":"
-                      << local_time->tm_sec << std::endl;
+    auto now_c = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now_c), "%Y-%m-%d-%H-%M-%S");
+    return ss.str();
+}
+
+void InfoProcessor::write_info_to_file(std::map<std::string, InfoPointer>& info_map) {
+    std::string file_path = "./new release/" + current_time_string() + ".txt";
+    std::ofstream file_writer(file_path, std::iostream::out);
+    
+    file_writer << "The time when the data was written" << std::endl
+                      << current_time_string() << std::endl;
     file_writer << std::endl;
     
     for (const auto& item : info_map) {
@@ -67,7 +68,7 @@ void InfoProcessor::write_info_to_file(std::map<std::string, InfoPointer>& info_
         if (p_info_container.size() > 0) {
             file_writer << "data scale\t";
             for (int i = 0; i < NUMBER_OF_DISTRIBUTION; ++i) {
-                file_writer << p_info_container[i].distribute_type << "<" << p_info_container[0].value_type << ">(microseconds)\t";
+                file_writer << p_info_container[i].distribute_type << "<" << p_info_container[i].value_type << ">(microseconds)\t";
             }
         }
         for (auto iter = p_info_container.begin(), end = p_info_container.end(); iter != end; iter += NUMBER_OF_DISTRIBUTION) {

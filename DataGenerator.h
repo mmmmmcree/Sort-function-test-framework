@@ -4,8 +4,6 @@
 #include <random>
 #include <algorithm>
 
-
-
 template<template<typename> typename Container = std::vector>
 class DataGenerator {
 public:
@@ -21,7 +19,7 @@ private:
 };
 
 template<template<typename> typename Container>
-DataGenerator<Container>::DataGenerator(): _data_scale(10)
+DataGenerator<Container>::DataGenerator(): _data_scale(20)
 {
 
 }

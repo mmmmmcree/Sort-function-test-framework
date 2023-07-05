@@ -163,15 +163,14 @@ void TestObject::performance_test() {
     if (is_correct) {
         DataGenerator data_generator;
         std::vector<PerforamanceInfo>& p_info_container = info_map[sort_function.name]->performance_info_container;
-        for (int i = 10; i <= 12; ++i) {
+        for (int i = 10; i <= 16; ++i) {
             long long data_scale = static_cast<long long >(pow(2, i));
             data_generator.set_data_scale(data_scale);
             performance_test_aux<
                 CurrentFunction, 
                 std::uniform_int_distribution<int>,
                 std::uniform_real_distribution<double>,
-                std::normal_distribution<double>,
-                std::normal_distribution<float>
+                std::normal_distribution<double>
             > (data_generator, data_scale, p_info_container);
             performance_test_reversed_data_aux<
                 CurrentFunction

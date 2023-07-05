@@ -2,6 +2,8 @@
 #define INFOPROCESSOR_H
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <chrono>
 #include <memory>
 #include <map>
@@ -18,7 +20,7 @@ public:
     static void print_performance_info(const std::string&, const PInfoContainer&);
     static void write_info_to_file(std::map<std::string, InfoPointer>&);
 private:
-    static const int NUMBER_OF_DISTRIBUTION = 5;
+    static const int NUMBER_OF_DISTRIBUTION = 4;
 };
 
 template<typename CurrentFunction>
