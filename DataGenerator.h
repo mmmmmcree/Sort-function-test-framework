@@ -19,7 +19,7 @@ private:
 };
 
 template<template<typename> typename Container>
-DataGenerator<Container>::DataGenerator(): _data_scale(20)
+DataGenerator<Container>::DataGenerator(): _data_scale(30)
 {
 
 }

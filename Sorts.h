@@ -141,13 +141,16 @@ struct CombSort {
         long long compare_times = 0, assign_times = 0;
         const double shrink_factor = 1.3;
         long gap = std::distance(first, last);
-        while (gap > 1) {
-            gap /= shrink_factor;
+        bool swapped = true;
+        while (gap > 1 || swapped) {
+            if (gap > 1) {gap /= shrink_factor;}
+            swapped = false;
             for (auto iter = first; iter + gap < last; ++iter) {
                 compare_times += 1;
                 if (*(iter + gap) < *iter) {
                     std::swap(*iter, *(iter + gap));
                     assign_times += 1;
+                    swapped = true;
                 }
             }
         }
@@ -157,11 +160,14 @@ struct CombSort {
     void operator()(RandomAccessIterator first, RandomAccessIterator last, CompareFunctor compare) {
         const double shrink_factor = 1.3;
         long gap = std::distance(first, last);
-        while (gap > 1) {
-            gap /= shrink_factor;
+        bool swapped = true;
+        while (gap > 1 || swapped) {
+            if (gap > 1) {gap /= shrink_factor;}
+            swapped = false;
             for (auto iter = first; iter + gap < last; ++iter) {
-                if (compare(*(iter + gap), *iter)) {
+                if (*(iter + gap) < *iter) {
                     std::swap(*iter, *(iter + gap));
+                    swapped = true;
                 }
             }
         }

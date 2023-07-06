@@ -47,7 +47,7 @@ void ParallelSort<SortFunctor>::selectional_sort(RandomAccessIterator first, Ran
     for (int i = 0; i < num_threads; ++i, block_begin = block_end,  block_end += sort_block_size) {
         sort_threads.emplace_back(
             [compare, &mtx, block_begin, block_end]() {
-                std::lock_guard<std::mutex> lock(mtx);
+                // std::lock_guard<std::mutex> lock(mtx);
                 SortFunctor()(block_begin, block_end, compare);
             }
         );
@@ -69,19 +69,20 @@ void ParallelSort<SortFunctor>::selectional_merge(RandomAccessIterator first, Ra
         if (num_threads == 3) {
             std::thread t(
                 [compare, &mtx, block_begin, block_mid, block_end]() {
-                    std::lock_guard<std::mutex> lock(mtx);
+                    // std::lock_guard<std::mutex> lock(mtx);
                     std::inplace_merge(block_begin, block_mid, block_end, compare);
                 }
             );
-            t.join();
+            
             std::inplace_merge(block_end, block_end + sort_block_size, last, compare);
+            t.join();
             std::inplace_merge(first, block_end, last, compare);
         } else if (num_threads == 7) {
             std::vector<std::thread> merge_threads;
             for (int i = 0; i < 3; ++i) {
                 merge_threads.emplace_back(
                     [compare, &mtx, block_begin, block_mid, block_end]() {
-                        std::lock_guard<std::mutex> lock(mtx);
+                        // std::lock_guard<std::mutex> lock(mtx);
                         std::inplace_merge(block_begin, block_mid, block_end, compare);
                     }
                 );
@@ -89,10 +90,10 @@ void ParallelSort<SortFunctor>::selectional_merge(RandomAccessIterator first, Ra
                 block_mid += merge_block_size;
                 block_end += merge_block_size;
             }     
+            std::inplace_merge(block_begin, block_mid, last, compare);
             for (int i = 0; i < 3; ++i) {
                 merge_threads[i].join();
             }
-            std::inplace_merge(block_begin, block_mid, last, compare);
             {
                 std::thread t(
                     [compare, &mtx, first, merge_block_size]() {
@@ -100,8 +101,8 @@ void ParallelSort<SortFunctor>::selectional_merge(RandomAccessIterator first, Ra
                         std::inplace_merge(first, first + merge_block_size, first + 2 *merge_block_size, compare);
                     }
                 );
-                t.join();
                 std::inplace_merge(first + 2 *merge_block_size, first + 3 *merge_block_size, last, compare);
+                t.join();
             }
             std::inplace_merge(first, first + 2 *merge_block_size, last, compare);
         }
